@@ -1,8 +1,15 @@
 // @ts-nocheck
 // TODO: Fix this when we turn strict mode on.
+
+import { Cashfree } from "cashfree-pg"
+
 import { UserSubscriptionPlan } from "types"
 import { freePlan, proPlan } from "@/config/subscriptions"
 import { db } from "@/lib/db"
+
+Cashfree.XClientId = process.env.NEXT_PUBLIC_CASHFREE_APP_ID!
+Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET!
+Cashfree.XEnvironment = Cashfree.Environment.PRODUCTION
 
 export async function getUserSubscriptionPlan(
   userId: string
@@ -12,10 +19,7 @@ export async function getUserSubscriptionPlan(
       id: userId,
     },
     select: {
-      stripeSubscriptionId: true,
-      stripeCurrentPeriodEnd: true,
-      stripeCustomerId: true,
-      stripePriceId: true,
+      isPro: true,
     },
   })
 
@@ -24,16 +28,16 @@ export async function getUserSubscriptionPlan(
   }
 
   // Check if user is on a pro plan.
-  const isPro =
-    user.stripePriceId &&
-    user.stripeCurrentPeriodEnd?.getTime() + 86_400_000 > Date.now()
-
+  // const isPro =
+  //   user.stripePriceId &&
+  //   user.stripeCurrentPeriodEnd?.getTime() + 86_400_000 > Date.now()
+  const isPro = user.isPro
   const plan = isPro ? proPlan : freePlan
 
   return {
     ...plan,
     ...user,
-    stripeCurrentPeriodEnd: user.stripeCurrentPeriodEnd?.getTime(),
+    cashfreeCurrentPeriodEnd: user.cashfreeCurrentPeriodEnd?.getTime(),
     isPro,
   }
 }

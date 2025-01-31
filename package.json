@@ -16,6 +16,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@cashfreepayments/cashfree-js": "^1.0.5",
     "@editorjs/code": "^2.8.0",
     "@editorjs/editorjs": "^2.26.5",
     "@editorjs/embed": "^2.5.3",
@@ -60,12 +61,14 @@
     "@typescript-eslint/parser": "^5.59.0",
     "@vercel/analytics": "^1.0.0",
     "@vercel/og": "^0.0.21",
+    "cashfree-pg": "^4.3.10",
     "class-variance-authority": "^0.4.0",
     "clsx": "^1.2.1",
     "cmdk": "^0.1.22",
     "concurrently": "^8.0.1",
     "contentlayer": "^0.3.1",
     "date-fns": "^2.29.3",
+    "fs": "0.0.1-security",
     "lucide-react": "^0.92.0",
     "next": "13.3.2-canary.13",
     "next-auth": "4.22.1",

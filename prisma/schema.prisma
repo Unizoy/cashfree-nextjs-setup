@@ -50,15 +50,15 @@ model User {
   image         String?
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @default(now()) @map(name: "updated_at")
+  phoneNumber   String?   @unique
+  accounts      Account[]
+  sessions      Session[]
+  Post          Post[]
 
-  accounts Account[]
-  sessions Session[]
-  Post     Post[]
-
-  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
-  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
-  stripePriceId          String?   @map(name: "stripe_price_id")
-  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  isPro                 Boolean   @default(false)
+  subscriptionStartDate DateTime?
+  subscriptionEndDate   DateTime?
+  orders                Order[]
 
   @@map(name: "users")
 }
@@ -84,4 +84,24 @@ model Post {
   author User @relation(fields: [authorId], references: [id])
 
   @@map(name: "posts")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  userId           String
+  orderId          String      @unique
+  amount           Float
+  status           OrderStatus
+  paymentSessionId String      @unique
+  createdAt        DateTime    @default(now()) @map(name: "created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map(name: "orders")
 }

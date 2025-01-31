@@ -55,11 +55,11 @@ export type DashboardConfig = {
 export type SubscriptionPlan = {
   name: string
   description: string
-  stripePriceId: string
+  cashfreePriceId: string
 }
 
 export type UserSubscriptionPlan = SubscriptionPlan &
-  Pick<User, "stripeCustomerId" | "stripeSubscriptionId"> & {
+  Pick<User, "cashfreeCustomerId" | "cashfreeSubscriptionId"> & {
     stripeCurrentPeriodEnd: number
     isPro: boolean
   }

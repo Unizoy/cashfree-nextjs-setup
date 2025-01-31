@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
+import { load } from "@cashfreepayments/cashfree-js"
 
 import { UserSubscriptionPlan } from "types"
+import { getCurrentUser } from "@/lib/session"
 import { cn, formatDate } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -17,9 +19,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 
 interface BillingFormProps extends React.HTMLAttributes<HTMLFormElement> {
-  subscriptionPlan: UserSubscriptionPlan & {
-    isCanceled: boolean
-  }
+  subscriptionPlan: UserSubscriptionPlan & { isCanceled: boolean }
 }
 
 export function BillingForm({
@@ -27,34 +27,78 @@ export function BillingForm({
   className,
   ...props
 }: BillingFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isLoading, setIsLoading] = React.useState(false)
+  let cashfree
+  var initializeSDK = async function () {
+    cashfree = await load({
+      mode: "sandbox",
+    })
+  }
+  initializeSDK()
 
-  async function onSubmit(event) {
-    event.preventDefault()
-    setIsLoading(!isLoading)
+  // Fetch Cashfree Payment Session
+  const fetchCashfreeSession = async () => {
+    try {
+      const response = await fetch("/api/payments/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify({
+        //   userId: "", // Replace with actual user ID
+        //   generations: 1, // Replace with actual generations count
+        //   orderNote: "Your order note here", // Replace with actual order note
+        //   // pricePerGeneration: subscriptionPlan.price, // Assuming price is part of the subscription plan
+        // }),
+      })
+      if (!response.ok) throw new Error("Failed to fetch Cashfree session.")
 
-    // Get a Stripe session URL.
-    const response = await fetch("/api/users/stripe")
-
-    if (!response?.ok) {
-      return toast({
-        title: "Something went wrong.",
-        description: "Please refresh the page and try again.",
+      const data = await response.json()
+      console.log("API Response:", data) // Log the entire response for debugging
+      // Access the payment_session_id correctly
+      if (data.success && data.data && data.data.payment_session_id) {
+        return data.data.payment_session_id
+      } else {
+        throw new Error("Payment session ID not found in response.")
+      }
+    } catch (error) {
+      toast({
+        title: "Payment Error",
+        description: "Unable to process your request. Please try again.",
         variant: "destructive",
       })
-    }
-
-    // Redirect to the Stripe session.
-    // This could be a checkout page for initial upgrade.
-    // Or portal to manage existing subscription.
-    const session = await response.json()
-    if (session) {
-      window.location.href = session.url
+      return null
     }
   }
 
+  const handleSubmit = React.useCallback(async (event: React.FormEvent) => {
+    event.preventDefault()
+    setIsLoading(true)
+
+    const paymentSessionId = await fetchCashfreeSession()
+    if (paymentSessionId) {
+      console.log("Payment Session ID:", paymentSessionId) // Log the session ID
+      if (!cashfree) {
+        toast({
+          title: "SDK Load Error",
+          description: "Failed to load Cashfree SDK. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const checkoutOptions = {
+        paymentSessionId,
+        redirectTarget: "_modal",
+      }
+      await cashfree.checkout(checkoutOptions)
+    } else {
+      console.error("Failed to retrieve payment session ID.")
+    }
+
+    setIsLoading(false)
+  }, [])
+
   return (
-    <form className={cn(className)} onSubmit={onSubmit} {...props}>
+    <form className={cn(className)} onSubmit={handleSubmit} {...props}>
       <Card>
         <CardHeader>
           <CardTitle>Subscription Plan</CardTitle>
@@ -64,10 +108,10 @@ export function BillingForm({
           </CardDescription>
         </CardHeader>
         <CardContent>{subscriptionPlan.description}</CardContent>
-        <CardFooter className="flex flex-col items-start space-y-2 md:flex-row md:justify-between md:space-x-0">
+        <CardFooter className="flex flex-col items-start space-y-2 md:flex-row md:justify-between">
           <button
             type="submit"
-            className={cn(buttonVariants())}
+            className={cn(buttonVariants(), "flex items-center")}
             disabled={isLoading}
           >
             {isLoading && (
@@ -75,14 +119,14 @@ export function BillingForm({
             )}
             {subscriptionPlan.isPro ? "Manage Subscription" : "Upgrade to PRO"}
           </button>
-          {subscriptionPlan.isPro ? (
+          {subscriptionPlan.isPro && (
             <p className="rounded-full text-xs font-medium">
               {subscriptionPlan.isCanceled
                 ? "Your plan will be canceled on "
                 : "Your plan renews on "}
               {formatDate(subscriptionPlan.stripeCurrentPeriodEnd)}.
             </p>
-          ) : null}
+          )}
         </CardFooter>
       </Card>
     </form>
