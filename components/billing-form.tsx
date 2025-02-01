@@ -192,14 +192,14 @@ export function BillingForm({
             )}
             {subscriptionPlan.isPro ? "Manage Subscription" : "Upgrade to PRO"}
           </button>
-          {subscriptionPlan.isPro && (
+          {/* {subscriptionPlan.isPro && (
             <p className="rounded-full text-xs font-medium">
               {subscriptionPlan.isCanceled
                 ? "Your plan will be canceled on "
                 : "Your plan renews on "}
               {formatDate(subscriptionPlan.stripeCurrentPeriodEnd)}.
             </p>
-          )}
+          )}  */}
         </CardFooter>
       </Card>
     </form>

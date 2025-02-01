@@ -48,11 +48,11 @@ export default async function BillingPage() {
         text="Manage billing and your subscription plan."
       />
       <div className="grid gap-8">
-        <Alert className="!pl-14">
+        {/* <Alert className="!pl-14">
           <Icons.warning />
           <AlertTitle>This is a demo app.</AlertTitle>
           <AlertDescription>
-            Taxonomy app is a demo app using a Stripe test environment. You can
+            Taxonomy app is a demo app using a Cashfree test environment. You can
             find a list of test card numbers on the{" "}
             <a
               href="https://stripe.com/docs/testing#cards"
@@ -64,7 +64,7 @@ export default async function BillingPage() {
             </a>
             .
           </AlertDescription>
-        </Alert>
+        </Alert> */}
         <BillingForm
           subscriptionPlan={{
             ...subscriptionPlan,
