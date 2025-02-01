@@ -127,7 +127,7 @@ export function BillingForm({
           if (data.status === "PAID") {
             toast({
               title: "Payment Successful!",
-              description: "Unable to process your request. Please try again.",
+              description: "You are now subscribed to the PRO plan.",
               variant: "default",
             })
             router.push("/dashboard/settings")
