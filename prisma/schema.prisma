@@ -100,8 +100,7 @@ model Order {
   status           OrderStatus
   paymentSessionId String      @unique
   createdAt        DateTime    @default(now()) @map(name: "created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map(name: "orders")
 }

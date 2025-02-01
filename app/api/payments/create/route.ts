@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const orderId = `order_${Date.now()}`
   const finalPrice = 499
 
   try {
@@ -46,7 +45,6 @@ export async function POST(req: NextRequest) {
     const request = {
       order_amount: finalPrice,
       order_currency: "INR",
-      // order_id: orderId,
       customer_details: {
         customer_id: userId,
         customer_name: existingUser.name ?? undefined,
@@ -57,14 +55,17 @@ export async function POST(req: NextRequest) {
       },
       order_meta: {
         return_url: `https://test.cashfree.com/pgappsdemos/return.php?order_id=order_123`,
-        // notify_url: `${process.env.NEXT_PUBLIC_CASHFREE_WEBHOOK_ENDPOINT}/api/payments/webhook`,
+        notify_url: `${process.env.NEXT_PUBLIC_CASHFREE_WEBHOOK_ENDPOINT}/api/payments/webhook`,
       },
       order_note: "Purchase of upgrade",
     }
-    console.log("Request Payload:", JSON.stringify(request, null, 2))
     const response = await Cashfree.PGCreateOrder("2023-08-01", request)
 
-    if (!response.data || !response.data.payment_session_id) {
+    if (
+      !response.data ||
+      !response.data.payment_session_id ||
+      !response.data.order_id
+    ) {
       console.error("Failed to create Cashfree order:", response.data)
       return NextResponse.json(
         { success: false, error: "Failed to create Cashfree order" },
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
     await db.order.create({
       data: {
         userId: userId,
-        orderId: orderId,
+        orderId: response.data.order_id,
         amount: finalPrice,
         status: "PENDING",
         paymentSessionId: response.data.payment_session_id,
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
       message: "Order created successfully",
       data: {
         payment_session_id: response.data.payment_session_id,
-        order_id: orderId,
+        order_id: response.data.order_id,
         // pricing: { finalPrice },
       },
     })

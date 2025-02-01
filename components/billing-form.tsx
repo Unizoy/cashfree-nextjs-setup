@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { load } from "@cashfreepayments/cashfree-js"
 
 import { UserSubscriptionPlan } from "types"
@@ -35,19 +36,12 @@ export function BillingForm({
     })
   }
   initializeSDK()
-
-  // Fetch Cashfree Payment Session
+  const router = useRouter()
   const fetchCashfreeSession = async () => {
     try {
       const response = await fetch("/api/payments/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // body: JSON.stringify({
-        //   userId: "", // Replace with actual user ID
-        //   generations: 1, // Replace with actual generations count
-        //   orderNote: "Your order note here", // Replace with actual order note
-        //   // pricePerGeneration: subscriptionPlan.price, // Assuming price is part of the subscription plan
-        // }),
       })
       if (!response.ok) throw new Error("Failed to fetch Cashfree session.")
 
@@ -55,7 +49,10 @@ export function BillingForm({
       console.log("API Response:", data) // Log the entire response for debugging
       // Access the payment_session_id correctly
       if (data.success && data.data && data.data.payment_session_id) {
-        return data.data.payment_session_id
+        return {
+          paymentSessionId: data.data.payment_session_id,
+          orderId: data.data.order_id,
+        }
       } else {
         throw new Error("Payment session ID not found in response.")
       }
@@ -73,9 +70,17 @@ export function BillingForm({
     event.preventDefault()
     setIsLoading(true)
 
-    const paymentSessionId = await fetchCashfreeSession()
+    const sessionData = await fetchCashfreeSession()
+
+    if (!sessionData) {
+      console.error("Failed to retrieve payment session data.")
+      setIsLoading(false)
+      return
+    }
+
+    const { paymentSessionId, orderId } = sessionData
+
     if (paymentSessionId) {
-      console.log("Payment Session ID:", paymentSessionId) // Log the session ID
       if (!cashfree) {
         toast({
           title: "SDK Load Error",
@@ -90,12 +95,80 @@ export function BillingForm({
         redirectTarget: "_modal",
       }
       await cashfree.checkout(checkoutOptions)
+      await pollOrderStatus(orderId)
     } else {
       console.error("Failed to retrieve payment session ID.")
     }
 
     setIsLoading(false)
   }, [])
+
+  const pollOrderStatus = React.useCallback(
+    async (orderId: string) => {
+      const pollInterval = 2000
+      const maxAttempts = 2 // Increased to account for longer processing times
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          const response = await fetch("/api/payments/process", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ orderId }),
+          })
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+
+          const data = await response.json()
+          console.log({ data })
+          if (data.status === "PAID") {
+            toast({
+              title: "Payment Successful!",
+              description: "Unable to process your request. Please try again.",
+              variant: "default",
+            })
+            router.push("/dashboard/settings")
+            return
+          } else if (data.status === "FAILED") {
+            toast({
+              title: "Payment Failed",
+              description:
+                data.errorDetails?.errorDescription ||
+                "Payment failed. Please try again.",
+              variant: "destructive",
+            })
+            return
+          } else if (data.status === "PENDING") {
+            // Continue polling
+            await new Promise((resolve) => setTimeout(resolve, pollInterval))
+          } else {
+            // Unexpected status
+            console.error("Unexpected payment status:", data.status)
+            toast({
+              title: "Payment Error",
+              description: "Unable to process your request. Please try again.",
+              variant: "destructive",
+            })
+            return
+          }
+        } catch (error) {
+          console.error("Polling Error:", error)
+          // Don't break the loop on error, try again
+        }
+      }
+
+      // If we've reached here, we've exceeded max attempts
+      toast({
+        title:
+          "Unable to confirm payment status. Please check your account or contact support.",
+        variant: "destructive",
+      })
+    },
+    [router]
+  )
 
   return (
     <form className={cn(className)} onSubmit={handleSubmit} {...props}>
