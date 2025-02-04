@@ -1,12 +1,10 @@
 "use client"
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
 import { load } from "@cashfreepayments/cashfree-js"
+import { useRouter } from "next/navigation"
+import * as React from "react"
 
-import { UserSubscriptionPlan } from "types"
-import { getCurrentUser } from "@/lib/session"
-import { cn, formatDate } from "@/lib/utils"
+import { Icons } from "@/components/icons"
 import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
@@ -17,12 +15,13 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { Icons } from "@/components/icons"
+import { cn } from "@/lib/utils"
+import { UserSubscriptionPlan } from "types"
 
 interface BillingFormProps extends React.HTMLAttributes<HTMLFormElement> {
-  subscriptionPlan: UserSubscriptionPlan & { isCanceled: boolean }
+  subscriptionPlan: UserSubscriptionPlan
+  // & { isCanceled: boolean }
 }
-
 export function BillingForm({
   subscriptionPlan,
   className,
@@ -188,18 +187,11 @@ export function BillingForm({
             disabled={isLoading}
           >
             {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              <Icons.spinner className="mr-2 size-4 animate-spin" />
             )}
             {subscriptionPlan.isPro ? "Manage Subscription" : "Upgrade to PRO"}
           </button>
-          {/* {subscriptionPlan.isPro && (
-            <p className="rounded-full text-xs font-medium">
-              {subscriptionPlan.isCanceled
-                ? "Your plan will be canceled on "
-                : "Your plan renews on "}
-              {formatDate(subscriptionPlan.stripeCurrentPeriodEnd)}.
-            </p>
-          )}  */}
+
         </CardFooter>
       </Card>
     </form>
