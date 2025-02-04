@@ -1,4 +1,4 @@
-# Unizoy
+# Unizoy Cashfree Next.js
 
 A modern web application built with Next.js 13, focusing on educational technology and student services.
 
