@@ -17,7 +17,6 @@ export default async function SettingsPage() {
   const session = await auth()
   const user = session?.user
 
-  console.log("Current user:", user)
   if (!user) {
     redirect("/login")
   }

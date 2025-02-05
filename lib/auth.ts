@@ -41,37 +41,4 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
   ...authConfig,
-
-  // callbacks: {
-  //   async session({ token, session }) {
-  //     if (token) {
-  //       session.user.id = token.id as string
-  //       session.user.name = token.name || null
-  //       session.user.email = token.email || null
-  //       session.user.image = token.picture || null
-  //     }
-  //     return session
-  //   },
-  //   async jwt({ token, user }) {
-  //     const dbUser = await db.user.findFirst({
-  //       where: {
-  //         email: token.email || undefined,
-  //       },
-  //     })
-
-  //     if (!dbUser) {
-  //       if (user) {
-  //         token.id = user.id
-  //       }
-  //       return token
-  //     }
-
-  //     return {
-  //       id: dbUser.id,
-  //       name: dbUser.name,
-  //       email: dbUser.email,
-  //       picture: dbUser.image,
-  //     }
-  //   },
-  // },
 })
