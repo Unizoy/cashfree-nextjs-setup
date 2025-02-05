@@ -3,6 +3,8 @@ import localFont from "next/font/local"
 
 import "@/styles/globals.css"
 
+import { Viewport } from "next"
+
 import { siteConfig } from "@/config/site"
 import { absoluteUrl, cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"

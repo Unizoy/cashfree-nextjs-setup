@@ -7,7 +7,7 @@ import {
 } from "@/routes"
 import NextAuth from "next-auth"
 
-import authConfig from "./auth.config"
+import authConfig from "./lib/auth.config"
 
 const { auth } = NextAuth(authConfig)
 
