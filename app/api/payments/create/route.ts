@@ -5,15 +5,6 @@ import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 
 export async function POST(req: NextRequest) {
-  // const { userId, generations, orderNote } = await req.json()
-
-  // if (!userId || !generations || generations <= 0) {
-  //   return NextResponse.json(
-  //     { success: false, error: "Invalid input parameters" },
-  //     { status: 400 }
-  //   )
-  // }
-
   const user = await getCurrentUser()
   const userId = user?.id
 
@@ -31,19 +22,24 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const finalPrice = 499
+  const { orderAmount } = await req.json()
+  if (!orderAmount || orderAmount <= 0) {
+    return NextResponse.json(
+      { success: false, error: "Invalid order amount" },
+      { status: 400 }
+    )
+  }
 
   try {
     Cashfree.XClientId = process.env.NEXT_PUBLIC_CASHFREE_APP_ID!
     Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY!
-    // Cashfree.XEnvironment =
-    //   process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT === "SANDBOX"
-    //     ? Cashfree.Environment.SANDBOX
-    //     : Cashfree.Environment.PRODUCTION
-    Cashfree.XEnvironment = Cashfree.Environment.SANDBOX
+    Cashfree.XEnvironment =
+      process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT === "SANDBOX"
+        ? Cashfree.Environment.SANDBOX
+        : Cashfree.Environment.PRODUCTION
 
     const request = {
-      order_amount: finalPrice,
+      order_amount: orderAmount,
       order_currency: "INR",
       customer_details: {
         customer_id: userId,
@@ -77,7 +73,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: userId,
         orderId: response.data.order_id,
-        amount: finalPrice,
+        amount: orderAmount,
         status: "PENDING",
         paymentSessionId: response.data.payment_session_id,
       },
@@ -89,7 +85,7 @@ export async function POST(req: NextRequest) {
       data: {
         payment_session_id: response.data.payment_session_id,
         order_id: response.data.order_id,
-        // pricing: { finalPrice },
+        pricing: { orderAmount },
       },
     })
   } catch (error) {

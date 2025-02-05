@@ -45,7 +45,10 @@ export async function POST(req: NextRequest) {
 
     Cashfree.XClientId = process.env.NEXT_PUBLIC_CASHFREE_APP_ID!
     Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY!
-    Cashfree.XEnvironment = Cashfree.Environment.SANDBOX
+    Cashfree.XEnvironment =
+      process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT === "SANDBOX"
+        ? Cashfree.Environment.SANDBOX
+        : Cashfree.Environment.PRODUCTION
 
     const cashfreeResponse = await Cashfree.PGOrderFetchPayments(
       "2023-08-01",

@@ -1,10 +1,11 @@
 "use client"
 
-import { load } from "@cashfreepayments/cashfree-js"
-import { useRouter } from "next/navigation"
 import * as React from "react"
+import { useRouter } from "next/navigation"
+import { load } from "@cashfreepayments/cashfree-js"
 
-import { Icons } from "@/components/icons"
+import { UserSubscriptionPlan } from "types"
+import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
@@ -15,19 +16,20 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { cn } from "@/lib/utils"
-import { UserSubscriptionPlan } from "types"
+import { Icons } from "@/components/icons"
 
 interface BillingFormProps extends React.HTMLAttributes<HTMLFormElement> {
   subscriptionPlan: UserSubscriptionPlan
   // & { isCanceled: boolean }
 }
+
 export function BillingForm({
   subscriptionPlan,
   className,
   ...props
 }: BillingFormProps) {
   const [isLoading, setIsLoading] = React.useState(false)
+
   let cashfree
   var initializeSDK = async function () {
     cashfree = await load({
@@ -35,18 +37,19 @@ export function BillingForm({
     })
   }
   initializeSDK()
+
   const router = useRouter()
   const fetchCashfreeSession = async () => {
     try {
       const response = await fetch("/api/payments/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderAmount: 499 }),
       })
       if (!response.ok) throw new Error("Failed to fetch Cashfree session.")
 
       const data = await response.json()
-      console.log("API Response:", data) // Log the entire response for debugging
-      // Access the payment_session_id correctly
+      // console.log("API Response:", data)
       if (data.success && data.data && data.data.payment_session_id) {
         return {
           paymentSessionId: data.data.payment_session_id,
@@ -64,43 +67,6 @@ export function BillingForm({
       return null
     }
   }
-
-  const handleSubmit = React.useCallback(async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsLoading(true)
-
-    const sessionData = await fetchCashfreeSession()
-
-    if (!sessionData) {
-      console.error("Failed to retrieve payment session data.")
-      setIsLoading(false)
-      return
-    }
-
-    const { paymentSessionId, orderId } = sessionData
-
-    if (paymentSessionId) {
-      if (!cashfree) {
-        toast({
-          title: "SDK Load Error",
-          description: "Failed to load Cashfree SDK. Please try again.",
-          variant: "destructive",
-        })
-        return
-      }
-
-      const checkoutOptions = {
-        paymentSessionId,
-        redirectTarget: "_modal",
-      }
-      await cashfree.checkout(checkoutOptions)
-      await pollOrderStatus(orderId)
-    } else {
-      console.error("Failed to retrieve payment session ID.")
-    }
-
-    setIsLoading(false)
-  }, [])
 
   const pollOrderStatus = React.useCallback(
     async (orderId: string) => {
@@ -169,6 +135,46 @@ export function BillingForm({
     [router]
   )
 
+  const handleSubmit = React.useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault()
+      setIsLoading(true)
+
+      const sessionData = await fetchCashfreeSession()
+
+      if (!sessionData) {
+        console.error("Failed to retrieve payment session data.")
+        setIsLoading(false)
+        return
+      }
+
+      const { paymentSessionId, orderId } = sessionData
+
+      if (paymentSessionId) {
+        if (!cashfree) {
+          toast({
+            title: "SDK Load Error",
+            description: "Failed to load Cashfree SDK. Please try again.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        const checkoutOptions = {
+          paymentSessionId,
+          redirectTarget: "_modal",
+        }
+        await cashfree.checkout(checkoutOptions)
+        await pollOrderStatus(orderId)
+      } else {
+        console.error("Failed to retrieve payment session ID.")
+      }
+
+      setIsLoading(false)
+    },
+    [cashfree, pollOrderStatus]
+  )
+
   return (
     <form className={cn(className)} onSubmit={handleSubmit} {...props}>
       <Card>
@@ -181,17 +187,18 @@ export function BillingForm({
         </CardHeader>
         <CardContent>{subscriptionPlan.description}</CardContent>
         <CardFooter className="flex flex-col items-start space-y-2 md:flex-row md:justify-between">
-          <button
-            type="submit"
-            className={cn(buttonVariants(), "flex items-center")}
-            disabled={isLoading}
-          >
-            {isLoading && (
-              <Icons.spinner className="mr-2 size-4 animate-spin" />
-            )}
-            {subscriptionPlan.isPro ? "Manage Subscription" : "Upgrade to PRO"}
-          </button>
-
+          {!subscriptionPlan.isPro && (
+            <button
+              type="submit"
+              className={cn(buttonVariants(), "flex items-center")}
+              disabled={isLoading}
+            >
+              {isLoading && (
+                <Icons.spinner className="mr-2 size-4 animate-spin" />
+              )}
+              Upgrade to PRO
+            </button>
+          )}
         </CardFooter>
       </Card>
     </form>
