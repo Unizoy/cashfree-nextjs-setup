@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 
-import { authOptions } from "@/lib/auth"
 import { getCurrentUser } from "@/lib/session"
 import { getUserSubscriptionPlan } from "@/lib/subscription"
 import { BillingForm } from "@/components/billing-form"
@@ -16,7 +15,8 @@ export default async function BillingPage() {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login")
+    console.log("Not authenticated")
+    redirect("/login")
   }
 
   const subscriptionPlan = await getUserSubscriptionPlan(user.id)
