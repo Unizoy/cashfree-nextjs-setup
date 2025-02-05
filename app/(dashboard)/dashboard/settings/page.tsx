@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 
+import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { toast } from "@/components/ui/use-toast"
@@ -13,15 +14,17 @@ export const metadata = {
 }
 
 export default async function SettingsPage() {
-  const user = await getCurrentUser()
+  const session = await auth()
+  const user = session?.user
 
+  console.log("Current user:", user)
   if (!user) {
     redirect("/login")
   }
 
   const dbUser = await db.user.findUnique({
     where: {
-      id: user.id,
+      id: user?.id,
     },
     select: {
       name: true,
