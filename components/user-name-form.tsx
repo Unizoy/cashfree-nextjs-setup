@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
+import { Toast } from "@/components/ui/toast"
 import { Icons } from "@/components/icons"
 
 interface UserNameFormProps extends React.HTMLAttributes<HTMLFormElement> {
@@ -62,15 +62,14 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
     setIsSaving(false)
 
     if (!response?.ok) {
-      return toast({
-        title: "Something went wrong.",
-        description: "Your name was not updated. Please try again.",
+      return Toast({
+        title: "Your name was not updated. Please try again.",
         variant: "destructive",
       })
     }
 
-    toast({
-      description: "Your name has been updated.",
+    Toast({
+      title: "Your name has been updated.",
     })
 
     router.refresh()

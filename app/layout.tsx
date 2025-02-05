@@ -6,7 +6,7 @@ import "@/styles/globals.css"
 import { Viewport } from "next"
 
 import { siteConfig } from "@/config/site"
-import { absoluteUrl, cn } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@/components/analytics"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
@@ -35,6 +35,9 @@ export const viewport: Viewport = {
 }
 
 export const metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ),
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,

@@ -1,3 +1,4 @@
+import * as React from "react"
 import { Metadata } from "next"
 import Link from "next/link"
 
@@ -12,6 +13,14 @@ export const metadata: Metadata = {
 }
 
 export default function LoginPage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </React.Suspense>
+  )
+}
+
+function LoginContent() {
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link

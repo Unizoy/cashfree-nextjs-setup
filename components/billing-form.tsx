@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
+import { Toast } from "@/components/ui/toast"
 import { Icons } from "@/components/icons"
 
 interface BillingFormProps extends React.HTMLAttributes<HTMLFormElement> {
@@ -59,9 +59,8 @@ export function BillingForm({
         throw new Error("Payment session ID not found in response.")
       }
     } catch (error) {
-      toast({
-        title: "Payment Error",
-        description: "Unable to process your request. Please try again.",
+      Toast({
+        title: "Unable to process your request. Please try again.",
         variant: "destructive",
       })
       return null
@@ -90,17 +89,15 @@ export function BillingForm({
           const data = await response.json()
           console.log({ data })
           if (data.status === "PAID") {
-            toast({
-              title: "Payment Successful!",
-              description: "You are now subscribed to the PRO plan.",
+            Toast({
+              title: "You are now subscribed to the PRO plan.!",
               variant: "default",
             })
             router.push("/dashboard/settings")
             return
           } else if (data.status === "FAILED") {
-            toast({
-              title: "Payment Failed",
-              description:
+            Toast({
+              title:
                 data.errorDetails?.errorDescription ||
                 "Payment failed. Please try again.",
               variant: "destructive",
@@ -112,9 +109,8 @@ export function BillingForm({
           } else {
             // Unexpected status
             console.error("Unexpected payment status:", data.status)
-            toast({
-              title: "Payment Error",
-              description: "Unable to process your request. Please try again.",
+            Toast({
+              title: "Unable to process your request. Please try again.",
               variant: "destructive",
             })
             return
@@ -126,7 +122,7 @@ export function BillingForm({
       }
 
       // If we've reached here, we've exceeded max attempts
-      toast({
+      Toast({
         title:
           "Unable to confirm payment status. Please check your account or contact support.",
         variant: "destructive",
@@ -152,9 +148,8 @@ export function BillingForm({
 
       if (paymentSessionId) {
         if (!cashfree) {
-          toast({
-            title: "SDK Load Error",
-            description: "Failed to load Cashfree SDK. Please try again.",
+          Toast({
+            title: "Failed to load Cashfree SDK. Please try again.",
             variant: "destructive",
           })
           return

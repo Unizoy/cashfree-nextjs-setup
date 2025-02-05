@@ -26,10 +26,11 @@ import {
   type Icon as LucideIcon,
 } from "lucide-react"
 
-export type Icon = LucideIcon
+export type Icon = typeof LucideIcon
 
 export const Icons = {
   logo: Command,
+
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,

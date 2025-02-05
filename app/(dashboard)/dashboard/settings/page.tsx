@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
-import { toast } from "@/components/ui/use-toast"
+import { Toast } from "@/components/ui/toast"
 import { DashboardHeader } from "@/components/header"
 import { DashboardShell } from "@/components/shell"
 import { UserNameForm } from "@/components/user-name-form"
@@ -33,9 +33,8 @@ export default async function SettingsPage() {
   })
 
   if (!dbUser) {
-    return toast({
-      title: "User not found",
-      description: "Please try again later.",
+    return Toast({
+      title: "User not found.",
     })
   }
 

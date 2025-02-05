@@ -12,7 +12,7 @@ import { userAuthSchema } from "@/lib/validations/auth"
 import { buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
+import { Toast } from "@/components/ui/toast"
 import { Icons } from "@/components/icons"
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -43,16 +43,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setIsLoading(false)
 
     if (!signInResult?.ok) {
-      return toast({
-        title: "Something went wrong.",
-        description: "Your sign in request failed. Please try again.",
+      return Toast({
+        title: "Your sign in request failed. Please try again.",
         variant: "destructive",
       })
     }
 
-    return toast({
+    return Toast({
       title: "Check your email",
-      description: "We sent you a login link. Be sure to check your spam too.",
     })
   }
 

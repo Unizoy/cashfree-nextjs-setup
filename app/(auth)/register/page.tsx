@@ -1,3 +1,4 @@
+import * as React from "react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -11,6 +12,14 @@ export const metadata = {
 }
 
 export default function RegisterPage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <RegisterContent />
+    </React.Suspense>
+  )
+}
+
+function RegisterContent() {
   return (
     <div className="container grid h-screen w-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
       <Link
