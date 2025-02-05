@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { allDocs } from "contentlayer/generated"
+import { allDocs } from "@/.contentlayer/generated"
 
 import { getTableOfContents } from "@/lib/toc"
 import { Mdx } from "@/components/mdx-components"
@@ -8,6 +8,7 @@ import { DocsPager } from "@/components/pager"
 import { DashboardTableOfContents } from "@/components/toc"
 
 import "@/styles/mdx.css"
+
 import { Metadata } from "next"
 
 import { env } from "@/env.mjs"

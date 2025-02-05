@@ -1,4 +1,4 @@
-import { withContentlayer } from "next-contentlayer"
+import { withContentlayer } from "next-contentlayer2"
 
 import "./env.mjs"
 
@@ -7,10 +7,6 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ["avatars.githubusercontent.com"],
-  },
-  experimental: {
-    appDir: true,
-    serverComponentsExternalPackages: ["@prisma/client"],
   },
 }
 
