@@ -1,62 +1,57 @@
 import { redirect } from "next/navigation"
 
-import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { getCurrentUser } from "@/lib/session"
-import { EmptyPlaceholder } from "@/components/empty-placeholder"
+import { BillingForm } from "@/components/billing-form"
 import { DashboardHeader } from "@/components/header"
-import { PostCreateButton } from "@/components/post-create-button"
-import { PostItem } from "@/components/post-item"
 import { DashboardShell } from "@/components/shell"
+import { authOptions } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/session"
+import { getUserSubscriptionPlan } from "@/lib/subscription"
 
 export const metadata = {
-  title: "Dashboard",
+  title: "Billing",
+  description: "Manage billing and your subscription plan.",
 }
 
-export default async function DashboardPage() {
+export default async function BillingPage() {
   const user = await getCurrentUser()
 
   if (!user) {
     redirect(authOptions?.pages?.signIn || "/login")
   }
 
-  const posts = await db.post.findMany({
-    where: {
-      authorId: user.id,
-    },
-    select: {
-      id: true,
-      title: true,
-      published: true,
-      createdAt: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  })
+  const subscriptionPlan = await getUserSubscriptionPlan(user.id)
+
 
   return (
     <DashboardShell>
-      <DashboardHeader heading="Posts" text="Create and manage posts.">
-        <PostCreateButton />
-      </DashboardHeader>
-      <div>
-        {posts?.length ? (
-          <div className="divide-y divide-border rounded-md border">
-            {posts.map((post) => (
-              <PostItem key={post.id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <EmptyPlaceholder>
-            <EmptyPlaceholder.Icon name="post" />
-            <EmptyPlaceholder.Title>No posts created</EmptyPlaceholder.Title>
-            <EmptyPlaceholder.Description>
-              You don&apos;t have any posts yet. Start creating content.
-            </EmptyPlaceholder.Description>
-            <PostCreateButton variant="outline" />
-          </EmptyPlaceholder>
-        )}
+      <DashboardHeader
+        heading="Billing"
+        text="Manage billing and your subscription plan."
+      />
+      <div className="grid gap-8">
+        {/* <Alert className="!pl-14">
+          <Icons.warning />
+          <AlertTitle>This is a demo app.</AlertTitle>
+          <AlertDescription>
+            Taxonomy app is a demo app using a Cashfree test environment. You can
+            find a list of test card numbers on the{" "}
+            <a
+              href="https://stripe.com/docs/testing#cards"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium underline underline-offset-8"
+            >
+              Stripe docs
+            </a>
+            .
+          </AlertDescription>
+        </Alert> */}
+        <BillingForm
+          subscriptionPlan={{
+            ...subscriptionPlan,
+            // isCanceled,
+          }}
+        />
       </div>
     </DashboardShell>
   )

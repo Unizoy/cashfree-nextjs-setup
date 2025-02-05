@@ -7,8 +7,8 @@
     "url": "https://twitter.com/shadcn"
   },
   "scripts": {
-    "dev": "concurrently \"contentlayer2 dev\" \"next dev\"",
-    "build": "contentlayer2 build && next build",
+    "dev": "next dev",
+    "build": "next build",
     "turbo": "next dev --turbo",
     "start": "next start",
     "lint": "next lint",
@@ -66,13 +66,11 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
     "concurrently": "^9.1.2",
-    "contentlayer2": "^0.5.3",
     "date-fns": "^4.1.0",
     "fs": "0.0.1-security",
     "lucide-react": "^0.474.0",
     "next": "15.1.6",
     "next-auth": "4.24.11",
-    "next-contentlayer2": "^0.5.3",
     "next-themes": "^0.4.4",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
@@ -111,12 +109,6 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "pretty-quick": "^4.0.0",
     "prisma": "^6.3.1",
-    "rehype": "^13.0.2",
-    "rehype-autolink-headings": "^7.1.0",
-    "rehype-pretty-code": "^0.14.0",
-    "rehype-slug": "^6.0.0",
-    "remark": "^15.0.1",
-    "remark-gfm": "^4.0.0",
     "typescript": "5.7.3",
     "unist-util-visit": "^5.0.0"
   }
