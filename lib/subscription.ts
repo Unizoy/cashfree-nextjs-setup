@@ -1,10 +1,8 @@
-// TODO: Fix this when we turn strict mode on.
-
 import { Cashfree } from "cashfree-pg"
 
+import { UserSubscriptionPlan } from "types"
 import { freePlan, proPlan } from "@/config/subscriptions"
 import { db } from "@/lib/db"
-import { UserSubscriptionPlan } from "types"
 
 Cashfree.XClientId = process.env.NEXT_PUBLIC_CASHFREE_APP_ID!
 Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET!
@@ -25,7 +23,6 @@ export async function getUserSubscriptionPlan(
   if (!user) {
     throw new Error("User not found")
   }
-
 
   const isPro = user.isPro
   const plan = isPro ? proPlan : freePlan
