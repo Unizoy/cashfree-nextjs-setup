@@ -1,0 +1,7 @@
+{
+  "name": "Cashfree Nextjs Setup",
+  "short_name": "Cashfree Nextjs Setup",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
