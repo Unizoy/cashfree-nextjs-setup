@@ -93,7 +93,7 @@ export function BillingForm({
               title: "You are now subscribed to the PRO plan.!",
               variant: "default",
             })
-            router.push("/dashboard/settings")
+            router.refresh()
             return
           } else if (data.status === "FAILED") {
             toast({
